@@ -147,3 +147,9 @@ class NeuralNetwork:
         self.input_layer_size = input_layer_size
         self.hidden_layers = hidden_layers
         self.output_layer_size = output_layer_size
+
+    def train(self, x: np.ndarray, y: np.ndarray) -> None:
+        pass
+
+    def predict(self, x: np.ndarray) -> np.ndarray:
+        pass

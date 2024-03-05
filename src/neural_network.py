@@ -112,7 +112,38 @@ class Neuron:
         return self.activation(y)
 
 
+class Layer:
+    def __init__(self, neurons: int, activation: Activation) -> None:
+        self.neurons = [Neuron(activation) for _ in range(neurons)]
+
+    def train(self, x: np.ndarray, y: np.ndarray) -> None:
+        """
+        Trains the layer on the given input-output pairs
+        This uses gradient descent with backpropagation to update the weights
+
+        Args:
+            x (np.ndarray): input tensor to the layer
+            y (np.ndarray): output tensor of the layer
+        """
+        for neuron in self.neurons:
+            neuron.train(x, y)
+
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        """
+        Forward pass through the layer
+        Args:
+            x (np.ndarray): input tensor to the layer
+        Returns:
+            np.ndarray: output tensor of the layer
+        """
+        return np.array([neuron.forward(x) for neuron in self.neurons])
+
+
 class NeuralNetwork:
 
-    def __init__(self, input_layer, hidden_layer, output_layer) -> None:
-        pass
+    def __init__(
+        self, input_layer_size: int, hidden_layers: list[Layer], output_layer_size: int
+    ) -> None:
+        self.input_layer_size = input_layer_size
+        self.hidden_layers = hidden_layers
+        self.output_layer_size = output_layer_size

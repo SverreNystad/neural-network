@@ -8,49 +8,53 @@ class Activation(ABC):
     def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
         pass
 
+
 class Sigmoid(Activation):
-    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray: 
+    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
         """
         Applies the logistic function element-wise
-        
+
         Args:
             x (float or array): input to the logistic function
                 the function is vectorized, so it is acceptable
                 to pass an array of any shape.
-        
+
         Returns:
-            Element-wise sigmoid activations of the input 
+            Element-wise sigmoid activations of the input
         """
         return 1 / (1 + np.exp(-x))
+
 
 class Loss(ABC):
     """
     The loss function or cost function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "cost" associated with the event.
     """
+
     @abstractmethod
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         pass
+
 
 class MeanSquaredError(Loss):
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """
         Computes the mean squared error
-        
+
         Formula:
         mse = (1/n) * Σ(y_true - y_pred)^2
 
         Args:
             y_true (np.ndarray): true labels
             y_pred (np.ndarray): predicted labels
-        
+
         Returns:
             np.ndarray: mean squared error
         """
-        return np.mean((y_true - y_pred)**2)
-        
+        return np.mean((y_true - y_pred) ** 2)
+
 
 class Neuron:
-    
+
     def __init__(self, activation: Activation, learning_rate: float = 0.01) -> None:
         self.activation = activation
         # Hyperparameters
@@ -61,7 +65,7 @@ class Neuron:
         """
         Trains the neural network on the given input-output pairs
         This uses gradient descent with backpropagation to update the weights
-        
+
         Args:
             x (np.ndarray): input tensor to the neural network
             y (np.ndarray): output tensor of the neural network
@@ -84,11 +88,11 @@ class Neuron:
             db = np.sum(y - predictions)
 
         pass
-    
+
     def _random_weights(self, features: int) -> np.ndarray:
         """
         Returns a random weight matrix of shape (features, 1)
-        
+
         Args:
             features (int): number of features in the input tensor
         Returns:
@@ -106,3 +110,9 @@ class Neuron:
         """
         y = np.dot(x, self.weights) + self.bias
         return self.activation(y)
+
+
+class NeuralNetwork:
+
+    def __init__(self, input_layer, hidden_layer, output_layer) -> None:
+        pass

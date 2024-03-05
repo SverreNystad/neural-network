@@ -53,6 +53,13 @@ class MeanSquaredError(Loss):
         return np.mean((y_true - y_pred) ** 2)
 
 
+class HyperParameters:
+
+    def __init__(self, learning_rate: float = 0.01, max_iterations: int = 1000) -> None:
+        self.learning_rate = learning_rate
+        self.max_iterations = max_iterations
+
+
 class Neuron:
 
     def __init__(self, activation: Activation, learning_rate: float = 0.01) -> None:

@@ -156,7 +156,24 @@ class NeuralNetwork:
         self.output_layer_size = output_layer_size
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
+        if x.shape[1] == self.input_layer_size:
+            raise ValueError(
+                f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
+            )
         pass
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        pass
+
+        if x.shape[1] == self.input_layer_size:
+            raise ValueError(
+                f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
+            )
+
+        for layer in self.hidden_layers:
+            # Forward pass through the layer and update the input tensor
+            # Before the next layer
+            x = layer.forward(x)
+
+        # The output tensor of the last hidden layer is the input tensor to the output layer
+        assert x.shape[1] == self.output_layer_size
+        return x

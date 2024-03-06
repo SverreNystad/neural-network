@@ -24,6 +24,12 @@ class Sigmoid(Activation):
         """
         return 1 / (1 + np.exp(-x))
 
+class ReLU(Activation):
+    """
+    Rectified Linear Unit (ReLU) activation function
+    """
+    def __call__(self, x: float | np.ndarray) -> np.ndarray:
+        return np,max(0, x)
 
 class Loss(ABC):
     """

@@ -31,6 +31,27 @@ class ReLU(Activation):
     def __call__(self, x: float | np.ndarray) -> np.ndarray:
         return np,max(0, x)
 
+class Softplus(Activation):
+    """
+    Softplus activation function
+
+    Softplus is a smooth version of the ReLU function
+    """
+
+    def __call__(self, x: float | np.ndarray) -> np.ndarray:
+        return np.log(1 + np.e**(x))
+    
+class Tanh(Activation):
+    """
+    Hyperbolic tangent function
+    Tanh is a scaled and shifted version of the Sigmoid activation
+    Note that range of tanh is [-1, 1]
+    """
+    def __call__(self, x: float | np.ndarray) -> np.ndarray:
+        numerator = np.e**(2*x)-1
+        denominator = np.e**(2*x)+1
+        return numerator / denominator
+    
 class Loss(ABC):
     """
     The loss function or cost function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "cost" associated with the event.

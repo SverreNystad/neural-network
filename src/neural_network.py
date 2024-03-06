@@ -169,7 +169,10 @@ class NeuralNetwork:
         Args:
             x (np.ndarray): Input features, a numpy array of shape (samples, input_layer_size).
 
-        if x.shape[1] == self.input_layer_size:
+        Returns:
+            np.ndarray: The predicted output, a numpy array of shape (samples, output_layer_size).
+        """
+        if x.shape[1] != self.input_layer_size:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )

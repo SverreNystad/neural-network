@@ -163,6 +163,11 @@ class NeuralNetwork:
         pass
 
     def predict(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predicts the output for the given input using the trained neural network.
+
+        Args:
+            x (np.ndarray): Input features, a numpy array of shape (samples, input_layer_size).
 
         if x.shape[1] == self.input_layer_size:
             raise ValueError(

@@ -11,7 +11,6 @@ def neuron_visualizer(
     Visualizes the weights of a neuron as an image.
     Args:
         neuron (Neuron): Neuron to visualize with weights and bias
-        ax (plt.Axes): Matplotlib axes to draw the visualization
     """
 
     # Get the weights of the neuron

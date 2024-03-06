@@ -14,10 +14,22 @@ def test_2_1_1_network_output_shape():
     assert y_pred.shape == y_test.shape
 
 
-def test_too_high_input_num():
+def test_too_many_input_features():
     X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
     layers = [Layer(1, Sigmoid)]
     network = NeuralNetwork(3, layers, 1)
+    try:
+        network.predict(X_train)
+    except ValueError:
+        assert True
+    else:
+        assert False
+
+
+def test_too_few_input_features():
+    X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
+    layers = [Layer(1, Sigmoid)]
+    network = NeuralNetwork(1, layers, 1)
     try:
         network.predict(X_train)
     except ValueError:

@@ -158,10 +158,11 @@ class NeuralNetwork:
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )
 
+        activation = x
         for layer in self.hidden_layers:
             # Forward pass through the layer and update the input tensor
             # Before the next layer
-            x = layer.forward(x)
+            activation = layer.forward(activation)
 
         # The output tensor of the last hidden layer is the input tensor to the output layer
         assert x.shape[1] == self.output_layer_size

@@ -165,8 +165,8 @@ class NeuralNetwork:
             activation = layer.forward(activation)
 
         # The output tensor of the last hidden layer is the input tensor to the output layer
-        if x.shape[1] != self.output_layer_size:
+        if activation.shape[1] != self.output_layer_size:
             raise ValueError(
-                f"Output array must have {self.output_layer_size} features, but got {x.shape[1]}"
+                f"Output array must have {self.output_layer_size} features, but got {activation.shape[1]}"
             )
-        return x
+        return activation

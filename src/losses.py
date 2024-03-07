@@ -31,3 +31,21 @@ class MeanSquaredError(Loss):
             np.ndarray: mean squared error
         """
         return np.mean((y_true - y_pred) ** 2)
+
+
+class RootMeanSquaredError(Loss):
+    def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        """
+        Computes the root mean squared error
+
+        Formula:
+        rmse = sqrt((1/n) * Σ(y_true - y_pred)^2)
+
+        Args:
+            y_true (np.ndarray): true labels
+            y_pred (np.ndarray): predicted labels
+
+        Returns:
+            np.ndarray: root mean squared error
+        """
+        return np.sqrt(np.mean((y_true - y_pred) ** 2))

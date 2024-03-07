@@ -139,11 +139,22 @@ class Neuron:
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """
-        Predicts the output of the neural network for a given input
+        Performs the forward pass, predicting the output for the given input.
+        Using the formula:
+            a_j = g_j(Σ_i w_i,j a_i)
+            a_j: the output of the unit j
+            a_i: the output of the the units
+            w_i,j: The weight attached to the link from unit i to unit j
+
+            g_j: is the nonlinear activation function associated with unit j
+
+        output = activation(W^T * input + bias)
+
         Args:
-            x (np.ndarray): input to the neural network
+            x (np.ndarray): Input features, a numpy array of shape (samples, features).
+
         Returns:
-            np.ndarray: output of the neural network
+            np.ndarray: The predicted output, a numpy array of shape (samples,).
         """
         y = np.dot(x, self.weights) + self.bias
         return self.activation(y)

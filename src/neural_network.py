@@ -2,56 +2,9 @@ import numpy as np
 from typing import Union
 from abc import ABC, abstractmethod
 
-
-class Activation(ABC):
-    @abstractmethod
-    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
-        pass
+from src.activation import Activation
 
 
-class Sigmoid(Activation):
-    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
-        """
-        Applies the logistic function element-wise
-
-        Args:
-            x (float or array): input to the logistic function
-                the function is vectorized, so it is acceptable
-                to pass an array of any shape.
-
-        Returns:
-            Element-wise sigmoid activations of the input
-        """
-        return 1 / (1 + np.exp(-x))
-
-class ReLU(Activation):
-    """
-    Rectified Linear Unit (ReLU) activation function
-    """
-    def __call__(self, x: float | np.ndarray) -> np.ndarray:
-        return np,max(0, x)
-
-class Softplus(Activation):
-    """
-    Softplus activation function
-
-    Softplus is a smooth version of the ReLU function
-    """
-
-    def __call__(self, x: float | np.ndarray) -> np.ndarray:
-        return np.log(1 + np.e**(x))
-    
-class Tanh(Activation):
-    """
-    Hyperbolic tangent function
-    Tanh is a scaled and shifted version of the Sigmoid activation
-    Note that range of tanh is [-1, 1]
-    """
-    def __call__(self, x: float | np.ndarray) -> np.ndarray:
-        numerator = np.e**(2*x)-1
-        denominator = np.e**(2*x)+1
-        return numerator / denominator
-    
 class Loss(ABC):
     """
     The loss function or cost function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "cost" associated with the event.
@@ -59,6 +12,9 @@ class Loss(ABC):
 
     @abstractmethod
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        """
+        Computes the loss between the true labels and the predicted labels
+        """
         pass
 
 
@@ -90,7 +46,7 @@ class HyperParameters:
 class Neuron:
 
     def __init__(self, activation: Activation, learning_rate: float = 0.01) -> None:
-        self.activation = activation
+        self.activation = activation()
         # Hyperparameters
         self.learning_rate = learning_rate
         self.max_iterations = 1000
@@ -104,13 +60,12 @@ class Neuron:
         This uses gradient descent with backpropagation to update the weights
 
         Args:
-            x (np.ndarray): input tensor to the neural network
-            y (np.ndarray): output tensor of the neural network
+            x (np.ndarray): Input features, a numpy array of shape (samples, features).
+            y (np.ndarray): Target values, a numpy array of shape (samples,).
         """
 
         # Initialize weights and bias
-        samples: int = x.shape[0]
-        features: int = x.shape[1]
+        samples, features = x.shape
 
         # Initialize weights
         self.weights = self._random_weights(features)
@@ -124,7 +79,9 @@ class Neuron:
             dw = np.dot(x.T, (y - predictions))
             db = np.sum(y - predictions)
 
-        pass
+            # Update weights and bias
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
 
     def _random_weights(self, features: int) -> np.ndarray:
         """

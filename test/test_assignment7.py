@@ -36,3 +36,14 @@ def test_too_few_input_features():
         assert True
     else:
         assert False
+
+
+def test_predict_output_shape():
+    X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
+    assert X_test.shape == (120, 2)
+    layers = [Layer(1, Sigmoid)]
+    network = NeuralNetwork(2, layers, 1)
+    network.train(X_train, y_train)
+    y_pred = network.predict(X_test)
+    assert y_pred.shape == y_test.shape
+    assert y_pred.shape == (120, 1)

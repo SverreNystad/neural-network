@@ -134,7 +134,7 @@ class NeuralNetwork:
         for layer in self.hidden_layers:
             # Train the layer on the input-output pairs
             activation = layer.forward(activation)
-            activations.append(x)
+            activations.append(activation)
 
         # Backpropagation
 

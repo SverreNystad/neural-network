@@ -186,7 +186,15 @@ class NeuralNetwork:
         self.output_layer_size = output_layer_size
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
-        if x.shape[1] == self.input_layer_size:
+        """
+        Trains the neural network using the provided input-output pairs.
+        Using backpropagation and optimization algorithm to update the weights.
+
+        Args:
+            x (np.ndarray): Input features, a numpy array of shape (samples, input_layer_size).
+            y (np.ndarray): Target values, a numpy array of shape (samples, output_layer_size).
+        """
+        if x.shape[1] != self.input_layer_size:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )

@@ -156,7 +156,7 @@ class Neuron:
         Returns:
             np.ndarray: The predicted output, a numpy array of shape (samples,).
         """
-        y = np.dot(x, self.weights) + self.bias
+        y = np.dot(self.weights.T, x) + self.bias
         return self.activation(y)
 
 

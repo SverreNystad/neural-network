@@ -67,3 +67,21 @@ class MeanAbsoluteError(Loss):
             np.ndarray: mean absolute error
         """
         return np.mean(np.abs(y_true - y_pred))
+
+
+class CrossEntropy(Loss):
+    def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        """
+        Computes the cross entropy loss
+
+        Formula:
+        cross_entropy = -Σ(y_true * log(y_pred) + (1 - y_true) * log(1 - y_pred))
+
+        Args:
+            y_true (np.ndarray): true labels
+            y_pred (np.ndarray): predicted labels
+
+        Returns:
+            np.ndarray: cross entropy loss
+        """
+        return -np.sum(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))

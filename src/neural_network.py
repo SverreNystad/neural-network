@@ -190,6 +190,21 @@ class NeuralNetwork:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )
+
+        # Take the input tensor and forward it through each layer and store the activations
+        # of each layer.
+        activation = x
+        activations = [x]
+        for layer in self.hidden_layers:
+            # Train the layer on the input-output pairs
+            activation = layer.forward(activation)
+            activations.append(x)
+
+        # Backpropagation
+
+        for layer in reversed(self.hidden_layers):
+            # Backward
+            pass
         pass
 
     def predict(self, x: np.ndarray) -> np.ndarray:

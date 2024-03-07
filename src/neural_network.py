@@ -95,6 +95,9 @@ class Neuron:
         self.learning_rate = learning_rate
         self.max_iterations = 1000
 
+        self.weights = None
+        self.bias = None
+
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
         """
         Trains the neural network on the given input-output pairs

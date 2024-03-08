@@ -1,12 +1,21 @@
 import numpy as np
 
-from src.activation import Activation
+from src.activation import Activation, Sigmoid
+from src.losses import Loss, MeanSquaredError
 
 
 class Neuron:
 
-    def __init__(self, activation: Activation, learning_rate: float = 0.01) -> None:
+    def __init__(
+        self, activation: Activation, cost_function: Loss, learning_rate: float = 0.01
+    ) -> None:
+        """
+        Initializes the neuron with the given activation function and cost function
+
+        """
         self.activation = activation()
+        self.cost_function = cost_function()
+
         # Hyperparameters
         self.learning_rate = learning_rate
         self.max_iterations = 1000
@@ -78,8 +87,10 @@ class Neuron:
 
 
 class Layer:
-    def __init__(self, neurons: int, activation: Activation) -> None:
-        self.neurons = [Neuron(activation) for _ in range(neurons)]
+    def __init__(
+        self, neurons: int, activation: Activation, cost_function: Loss
+    ) -> None:
+        self.neurons = [Neuron(activation, cost_function) for _ in range(neurons)]
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -107,11 +118,16 @@ class Layer:
 class NeuralNetwork:
 
     def __init__(
-        self, input_layer_size: int, hidden_layers: list[Layer], output_layer_size: int
+        self,
+        input_layer_size: int,
+        hidden_layers: list[int],
+        output_layer_size: int,
+        activation: Activation = Sigmoid,
+        cost_function: Loss = MeanSquaredError,
     ) -> None:
         self.input_layer_size = input_layer_size
-        self.hidden_layers = hidden_layers
-        self.output_layer_size = output_layer_size
+        self.hidden_layers = Layer(hidden_layers, activation, cost_function)
+        self.output_layer_size = Layer(output_layer_size, activation, cost_function)
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -163,6 +179,9 @@ class NeuralNetwork:
             # Forward pass through the layer and update the input tensor
             # Before the next layer
             activation = layer.forward(activation)
+
+        # Forward pass through the output layer
+        activation = self.output_layer.forward(activation)
 
         # The output tensor of the last hidden layer is the input tensor to the output layer
         if activation.shape[1] != self.output_layer_size:

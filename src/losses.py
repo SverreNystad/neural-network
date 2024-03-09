@@ -14,6 +14,13 @@ class Loss(ABC):
         """
         pass
 
+    @abstractmethod
+    def derived(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        """
+        Computes the derivative of the loss function
+        """
+        pass
+
 
 class MeanSquaredError(Loss):
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
@@ -31,6 +38,9 @@ class MeanSquaredError(Loss):
             np.ndarray: mean squared error
         """
         return np.mean((y_true - y_pred) ** 2)
+
+    def derived(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        return -2 * (y_true - y_pred)
 
 
 class RootMeanSquaredError(Loss):

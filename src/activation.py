@@ -24,6 +24,22 @@ class Sigmoid(Activation):
         """
         return 1 / (1 + np.exp(-x))
 
+    def derivative(self, x: Union[float, np.ndarray]) -> np.ndarray:
+        """
+        Computes the derivative of the sigmoid function
+
+        f = 1/(1+exp(-x))
+        df = f * (1 - f)
+        Args:
+            x (float or array): input to the sigmoid function
+                the function is vectorized, so it is acceptable
+                to pass an array of any shape.
+
+        Returns:
+            Element-wise derivative of the sigmoid function
+        """
+        return self(x) * (1 - self(x))
+
 
 class ReLU(Activation):
     """

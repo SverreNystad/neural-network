@@ -49,6 +49,8 @@ class ReLU(Activation):
     def __call__(self, x: float | np.ndarray) -> np.ndarray:
         return np, max(0, x)
 
+    def derivative(self, x: float | np.ndarray) -> np.ndarray:
+        return np.where(x > 0, 1, 0)
 
 class Softplus(Activation):
     """

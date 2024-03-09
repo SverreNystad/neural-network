@@ -131,8 +131,14 @@ class NeuralNetwork:
         cost_function: Loss = MeanSquaredError,
     ) -> None:
         self.input_layer_size = input_layer_size
-        self.hidden_layers = Layer(hidden_layers, activation, cost_function)
+        self.hidden_layers = [
+            Layer(nodes_in_layer, activation, cost_function)
+            for nodes_in_layer in hidden_layers
+        ]
         self.output_layer_size = Layer(output_layer_size, activation, cost_function)
+
+        self.cost_function = cost_function()
+        self.learning_rate = 0.01
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
         """

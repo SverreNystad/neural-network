@@ -13,12 +13,26 @@ def test_get_data():
     assert train_features == test_features
 
 
-def test_activation():
+def test_activation_shapes():
     X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
 
     activation_function: Activation = Sigmoid()
     activated = activation_function(X_train)
+    activated = activation_function(X_train)
+    derived = activation_function.derivative(X_train)
     assert activated.shape == X_train.shape
+    assert derived.shape == X_train.shape
+
+
+def test_activation_derivative():
+    x = np.array([0, 1])
+
+    activation_function: Activation = Sigmoid()
+    activated = activation_function(x)
+    derived = activation_function.derivative(x)
+
+    expected_derived = np.array([0.25, 0.19661193])
+    assert np.isclose(derived, expected_derived).all()
 
 
 def test_zero_loss():

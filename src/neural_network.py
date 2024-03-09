@@ -82,8 +82,13 @@ class Neuron:
         Returns:
             np.ndarray: The predicted output, a numpy array of shape (samples,).
         """
-        y = np.dot(self.weights.T, x) + self.bias
-        return self.activation(y)
+        return self.activation(self.get_input(x))
+
+    def get_input(self, x: np.ndarray) -> np.ndarray:
+        return np.dot(self.weights.T, x) + self.bias
+
+    def error(self, y: np.ndarray) -> np.ndarray:
+        """ """
 
 
 class Layer:
@@ -154,10 +159,24 @@ class NeuralNetwork:
 
         # Backpropagation
 
+        # Compute the error at the output layer
+        output_error = np.zeros(self.output_layer_size)
+        for i, neuron in enumerate(self.output_layer):
+            # ∂E/∂zⱼ
+            output_error[i] = neuron.error(y)
+
+        # Compute the error at the hidden layers
+        # Partial derivative of the error with respect to the output of the layer
+        pd_hidden_layer_errors = np.zeros(self.hidden_layers)
         for layer in reversed(self.hidden_layers):
             # Backward
+            for i, neuron in enumerate(layer):
+                # ∂E/∂zⱼ
+                # dE/dyⱼ = Σ ∂E/∂zⱼ * ∂z/∂yⱼ = Σ ∂E/∂zⱼ * wᵢⱼ
+                d_error_wrt_output = np.dot(output_error, neuron.weights)
+                pd_hidden_layer_errors[i] = neuron.error(y)
+
             pass
-        pass
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """

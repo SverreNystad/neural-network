@@ -85,6 +85,17 @@ class Neuron:
         return self.activation(self.get_input(x))
 
     def get_input(self, x: np.ndarray) -> np.ndarray:
+        """
+        Calculates the input to the neuron
+
+        This is often noted as z = W^T * x + b
+        This input z is sometimes called the im
+        Args:
+            x (np.ndarray): Input features, a numpy array of shape (samples, features).
+
+        Returns:
+            np.ndarray: The input to the neuron, a numpy array of shape (samples,).
+        """
         return np.dot(self.weights.T, x) + self.bias
 
     def error(self, y: np.ndarray) -> np.ndarray:

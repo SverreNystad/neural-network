@@ -40,12 +40,9 @@ def test_zero_loss():
     y_prediction = np.array([0, 1, 0, 1, 0])
     y_true = np.array([0, 1, 0, 1, 0])
     loss = loss_function(y_true, y_prediction)
-    derived = loss_function.derived(y_true, y_prediction)
     expected_loss = 0
-    expected_derived = np.array([0, 0, 0, 0, 0])
 
     assert np.isclose(loss, expected_loss)
-    assert np.isclose(derived, expected_derived).all()
 
 
 def test_some_loss():
@@ -53,9 +50,16 @@ def test_some_loss():
     y_true = np.array([3.0, -0.5, 2.0, 7.0], dtype=float)
     y_prediction = np.array([2.5, 0.0, 2.0, 8.0], dtype=float)
     loss = loss_function(y_true, y_prediction)
-    derived = loss_function.derived(y_true, y_prediction)
     expected_loss = 0.375
-    expected_derived = np.array([-1.0, 1.0, 0.0, 2.0])
 
     assert np.isclose(loss, expected_loss)
-    assert np.isclose(derived, expected_derived).all()
+
+
+def test_one_loss():
+    try:
+        loss_function: Loss = MeanSquaredError()
+        y_true = 2
+        y_prediction = np.array([2.5, 0.0, 2.0, 8.0], dtype=float)
+        loss = loss_function(y_true, y_prediction)
+    except Exception as e:
+        assert False

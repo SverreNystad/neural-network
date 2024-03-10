@@ -46,11 +46,12 @@ class ReLU(Activation):
     Rectified Linear Unit (ReLU) activation function
     """
 
-    def __call__(self, x: float | np.ndarray) -> np.ndarray:
+    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
         return np, max(0, x)
 
-    def derivative(self, x: float | np.ndarray) -> np.ndarray:
+    def derivative(self, x: Union[float, np.ndarray]) -> np.ndarray:
         return np.where(x > 0, 1, 0)
+
 
 class Softplus(Activation):
     """
@@ -59,7 +60,7 @@ class Softplus(Activation):
     Softplus is a smooth version of the ReLU function
     """
 
-    def __call__(self, x: float | np.ndarray) -> np.ndarray:
+    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
         return np.log(1 + np.e ** (x))
 
 
@@ -70,7 +71,7 @@ class Tanh(Activation):
     Note that range of tanh is [-1, 1]
     """
 
-    def __call__(self, x: float | np.ndarray) -> np.ndarray:
+    def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
         numerator = np.e ** (2 * x) - 1
         denominator = np.e ** (2 * x) + 1
         return numerator / denominator

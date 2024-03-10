@@ -7,7 +7,11 @@ from src.losses import Loss, MeanSquaredError
 class Neuron:
 
     def __init__(
-        self, activation: Activation, cost_function: Loss, learning_rate: float = 0.01
+        self,
+        weights: int,
+        activation: Activation,
+        cost_function: Loss,
+        learning_rate: float = 0.01,
     ) -> None:
         """
         Initializes the neuron with the given activation function and cost function
@@ -20,37 +24,8 @@ class Neuron:
         self.learning_rate = learning_rate
         self.max_iterations = 1000
 
-        self.weights = None
-        self.bias = None
-
-    def train(self, x: np.ndarray, y: np.ndarray) -> None:
-        """
-        Trains the neural network on the given input-output pairs
-        This uses gradient descent with backpropagation to update the weights
-
-        Args:
-            x (np.ndarray): Input features, a numpy array of shape (samples, features).
-            y (np.ndarray): Target values, a numpy array of shape (samples,).
-        """
-
-        # Initialize weights and bias
-        samples, features = x.shape
-
-        # Initialize weights
-        self.weights = self._random_weights(features)
-        self.bias = 0
-
-        for iteration in range(self.max_iterations):
-            # Forward pass
-            predictions = self.forward(x)
-
-            # Compute loss
-            dw = np.dot(x.T, (y - predictions))
-            db = np.sum(y - predictions)
-
-            # Update weights and bias
-            self.weights -= self.learning_rate * dw
-            self.bias -= self.learning_rate * db
+        self.weights: np.ndarray = self._random_weights(weights)
+        self.bias: float = 0
 
     def _random_weights(self, features: int) -> np.ndarray:
         """
@@ -98,37 +73,61 @@ class Neuron:
         """
         return np.dot(self.weights.T, x) + self.bias
 
-    def error(self, y: np.ndarray) -> np.ndarray:
-        """ """
+    def update_weights(self, delta: np.ndarray, x: np.ndarray) -> None:
+        """
+        Updates the weights of the neuron using the given input and delta
+
+        Args:
+            delta (np.ndarray): The gradient of the loss function with respect to the output layer
+            x (np.ndarray): The input to the neuron
+        """
+        self.bias -= self.learning_rate * np.sum(delta)
+        if x.shape[0] != delta.shape[0]:
+            # The input tensor must have the same number of features as the weights
+            return
+        self.weights -= self.learning_rate * np.dot(x.T, delta)
 
 
 class Layer:
     def __init__(
-        self, neurons: int, activation: Activation, cost_function: Loss
+        self, inputs: int, neurons: int, activation: Activation, cost_function: Loss
     ) -> None:
-        self.neurons = [Neuron(activation, cost_function) for _ in range(neurons)]
-
-    def train(self, x: np.ndarray, y: np.ndarray) -> None:
-        """
-        Trains the layer on the given input-output pairs
-        This uses gradient descent with backpropagation to update the weights
-
-        Args:
-            x (np.ndarray): input tensor to the layer
-            y (np.ndarray): output tensor of the layer
-        """
-        for neuron in self.neurons:
-            neuron.train(x, y)
+        self.neurons = [
+            Neuron(inputs, activation, cost_function) for _ in range(neurons)
+        ]
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """
-        Forward pass through the layer
+        Forward propagates pass through the layer
         Args:
             x (np.ndarray): input tensor to the layer
         Returns:
             np.ndarray: output tensor of the layer
         """
         return np.array([neuron.forward(x) for neuron in self.neurons])
+
+    def get_inputs(self, x: np.ndarray) -> np.ndarray:
+        """
+        Calculates the input to the layer
+
+        Args:
+            x (np.ndarray): Input features, a numpy array of shape (samples, features).
+
+        Returns:
+            np.ndarray: The input to the layer, a numpy array of shape (samples,).
+        """
+        return np.array([neuron.get_input(x) for neuron in self.neurons])
+
+    def update_weights(self, delta: np.ndarray, x: np.ndarray) -> None:
+        """
+        Updates the weights of the layer using the given input and delta
+
+        Args:
+            delta (np.ndarray): The gradient of the loss function with respect to the output layer
+            x (np.ndarray): The input to the layer
+        """
+        for neuron, delta_i in zip(self.neurons, delta):
+            neuron.update_weights(delta_i, x)
 
 
 class NeuralNetwork:
@@ -141,15 +140,34 @@ class NeuralNetwork:
         activation: Activation = Sigmoid,
         cost_function: Loss = MeanSquaredError,
     ) -> None:
-        self.input_layer_size = input_layer_size
-        self.hidden_layers = [
-            Layer(nodes_in_layer, activation, cost_function)
-            for nodes_in_layer in hidden_layers
-        ]
-        self.output_layer_size = Layer(output_layer_size, activation, cost_function)
-
-        self.cost_function = cost_function()
+        self.activation: Activation = activation
+        self.cost_function: Loss = cost_function
         self.learning_rate = 0.01
+
+        self.input_layer_size = input_layer_size
+        self._init_layers(input_layer_size, hidden_layers, output_layer_size)
+
+    def _init_layers(
+        self, input_layer_size: int, hidden_layers: list[int], output_layer_size: int
+    ) -> None:
+        """
+        Initializes the layers of the neural network
+
+        Args:
+            input_layer_size (int): number of features in the input tensor
+            hidden_layers (list[int]): number of neurons in each hidden layer
+            output_layer_size (int): number of neurons in the output layer
+        """
+        self.hidden_layers = []
+        inputs = input_layer_size
+        for layer in hidden_layers:
+            self.hidden_layers.append(
+                Layer(inputs, layer, self.activation, self.cost_function)
+            )
+            inputs = layer
+        self.output_layer = Layer(
+            hidden_layers[-1], output_layer_size, self.activation, self.cost_function
+        )
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -164,36 +182,47 @@ class NeuralNetwork:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )
+        for x_i, y_i in zip(x, y):
+            self._train_single(x_i, y_i)
+
+    def _train_single(self, x: np.ndarray, y: np.ndarray) -> None:
 
         # Take the input tensor and forward it through each layer and store the activations
         # of each layer.
         activation = x
         activations = [x]
+        # outputs are the activations of each layer z = W^T * x + b
         for layer in self.hidden_layers:
             # Train the layer on the input-output pairs
             activation = layer.forward(activation)
             activations.append(activation)
 
-        # Backpropagation
+        # Forward pass through the output layer
+        activation = self.output_layer.forward(activation)
+        activations.append(activation)
 
-        # Compute the error at the output layer
-        output_error = np.zeros(self.output_layer_size)
-        for i, neuron in enumerate(self.output_layer):
-            # ∂E/∂zⱼ
-            output_error[i] = neuron.error(y)
+        # TODO: Might use for logging
+        total_error = self.cost_function()(y, activations[-1])
+        # Backwards pass
+        # Compute the gradient of the loss function with respect to the output layer
 
-        # Compute the error at the hidden layers
-        # Partial derivative of the error with respect to the output of the layer
-        pd_hidden_layer_errors = np.zeros(self.hidden_layers)
-        for layer in reversed(self.hidden_layers):
-            # Backward
-            for i, neuron in enumerate(layer):
-                # ∂E/∂zⱼ
-                # dE/dyⱼ = Σ ∂E/∂zⱼ * ∂z/∂yⱼ = Σ ∂E/∂zⱼ * wᵢⱼ
-                d_error_wrt_output = np.dot(output_error, neuron.weights)
-                pd_hidden_layer_errors[i] = neuron.error(y)
+        delta = (
+            activations[-2]
+            * self.activation().derivative(activations[-1])
+            * 2
+            * (activations[-1] - y)
+        )
 
-            pass
+        self.output_layer.update_weights(delta, activations[-2])
+        # Update the weights and biases of the output layer
+        for i in range(len(self.hidden_layers), 0, -1):
+            delta = (
+                self.hidden_layers[i - 1].get_inputs(activations[i - 1])
+                * self.activation().derivative(activations[i])
+                * 2
+                * (activations[i] - y)
+            )
+            self.hidden_layers[i - 1].update_weights(delta, activations[i - 1])
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """
@@ -209,7 +238,16 @@ class NeuralNetwork:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )
+        predictions = []
+        for x_i in x:
+            prediction = self._predict_single(x_i)
+            predictions.append(prediction)
+        return np.array(predictions)
 
+    def _predict_single(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predicts the output for the given input using the trained neural network.
+        """
         activation = x
         for layer in self.hidden_layers:
             # Forward pass through the layer and update the input tensor
@@ -219,9 +257,4 @@ class NeuralNetwork:
         # Forward pass through the output layer
         activation = self.output_layer.forward(activation)
 
-        # The output tensor of the last hidden layer is the input tensor to the output layer
-        if activation.shape[1] != self.output_layer_size:
-            raise ValueError(
-                f"Output array must have {self.output_layer_size} features, but got {activation.shape[1]}"
-            )
         return activation

@@ -238,8 +238,8 @@ class NeuralNetwork:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )
-        predictions = []
-        for x_i in x:
+        predictions = np.zeros((x.shape[0], len(self.output_layer.neurons)))
+        for i, x_i in enumerate(x):
             prediction = self._predict_single(x_i)
             predictions.append(prediction)
         return np.array(predictions)

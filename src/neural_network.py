@@ -241,8 +241,8 @@ class NeuralNetwork:
         predictions = np.zeros((x.shape[0], len(self.output_layer.neurons)))
         for i, x_i in enumerate(x):
             prediction = self._predict_single(x_i)
-            predictions.append(prediction)
-        return np.array(predictions)
+            predictions[i] = prediction
+        return predictions
 
     def _predict_single(self, x: np.ndarray) -> np.ndarray:
         """

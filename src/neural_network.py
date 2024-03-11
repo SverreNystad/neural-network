@@ -73,7 +73,7 @@ class Neuron:
         """
         return np.dot(self.weights.T, x) + self.bias
 
-    def update_weights(self, delta: np.ndarray, x: np.ndarray) -> None:
+    def update_parameters(self, delta_weighs: np.ndarray, delta_bias: int) -> None:
         """
         Updates the weights of the neuron using the given input and delta
 
@@ -81,17 +81,15 @@ class Neuron:
             delta (np.ndarray): The gradient of the loss function with respect to the output layer
             x (np.ndarray): The input to the neuron
         """
-        self.bias -= self.learning_rate * np.sum(delta)
-        if x.shape[0] != delta.shape[0]:
-            # The input tensor must have the same number of features as the weights
-            return
-        self.weights -= self.learning_rate * np.dot(x.T, delta)
+        self.weights -= self.learning_rate * delta_weighs
+        self.bias -= self.learning_rate * delta_bias
 
 
 class Layer:
     def __init__(
         self, inputs: int, neurons: int, activation: Activation, cost_function: Loss
     ) -> None:
+        self._inputs = inputs
         self.neurons = [
             Neuron(inputs, activation, cost_function) for _ in range(neurons)
         ]
@@ -104,6 +102,10 @@ class Layer:
         Returns:
             np.ndarray: output tensor of the layer
         """
+        if x.shape[0] != self._inputs:
+            # Correct number of features
+            # (4, 1) != (4, 1, 1)
+            x = x.reshape(self._inputs, 1)
         return np.array([neuron.forward(x) for neuron in self.neurons])
 
     def get_inputs(self, x: np.ndarray) -> np.ndarray:
@@ -118,7 +120,11 @@ class Layer:
         """
         return np.array([neuron.get_input(x) for neuron in self.neurons])
 
-    def update_weights(self, delta: np.ndarray, x: np.ndarray) -> None:
+    def update_parameters(
+        self,
+        delta_weights: np.ndarray,
+        delta_biases: np.ndarray,
+    ) -> None:
         """
         Updates the weights of the layer using the given input and delta
 
@@ -126,8 +132,8 @@ class Layer:
             delta (np.ndarray): The gradient of the loss function with respect to the output layer
             x (np.ndarray): The input to the layer
         """
-        for neuron, delta_i in zip(self.neurons, delta):
-            neuron.update_weights(delta_i, x)
+        for neuron, delta_w, delta_b in zip(self.neurons, delta_weights, delta_biases):
+            neuron.update_parameters(delta_w, delta_b)
 
 
 class NeuralNetwork:
@@ -186,9 +192,12 @@ class NeuralNetwork:
         self.activation: Activation = activation
         self.cost_function: Loss = cost_function
         self.learning_rate = 0.01
+        self.epochs = 100
 
         self.input_layer_size = input_layer_size
         self._init_layers(input_layer_size, hidden_layers, output_layer_size)
+
+        self.logger = []
 
     def _init_layers(
         self, input_layer_size: int, hidden_layers: list[int], output_layer_size: int
@@ -225,11 +234,19 @@ class NeuralNetwork:
             raise ValueError(
                 f"Input array must have {self.input_layer_size} features, but got {x.shape[1]}"
             )
-        for x_i, y_i in zip(x, y):
-            self._train_single(x_i, y_i)
+        for epoch in range(self.epochs):
+            for x_i, y_i in zip(x, y):
+                self._train_single(x_i, y_i)
+
+            # Log the error every x epochs
+            if epoch % 1 == 0:
+                total_error = self.cost_function()(y, self.predict(x))
+                self.logger.append(total_error)
 
     def _train_single(self, x: np.ndarray, y: np.ndarray) -> None:
-
+        """
+        Trains the neural network using the provided input-output pairs.
+        """
         # Take the input tensor and forward it through each layer and store the activations
         # of each layer.
         activation = x
@@ -244,28 +261,42 @@ class NeuralNetwork:
         activation = self.output_layer.forward(activation)
         activations.append(activation)
 
-        # TODO: Might use for logging
-        total_error = self.cost_function()(y, activations[-1])
         # Backwards pass
         # Compute the gradient of the loss function with respect to the output layer
-
-        delta = (
+        delta_weights = (
             activations[-2]
             * self.activation().derivative(activations[-1])
             * 2
             * (activations[-1] - y)
         )
 
-        self.output_layer.update_weights(delta, activations[-2])
+        delta_biases = (
+            self.activation().derivative(activations[-1]) * 2 * (activations[-1] - y)
+        )
+
+        # Compute the gradient of the loss function with respect to the output layer
+        delta_previous_activation = np.zeros_like(len(self.output_layer.neurons))
+        for i, neuron in enumerate(self.output_layer.neurons):
+            delta_previous_activation = (
+                neuron.weights
+                * self.activation().derivative(activations[-1])
+                * 2
+                * (activations[-1] - y)
+            )
         # Update the weights and biases of the output layer
+        self.output_layer.update_parameters(delta_weights, delta_biases)
+
         for i in range(len(self.hidden_layers), 0, -1):
-            delta = (
+            delta_weights = (
                 self.hidden_layers[i - 1].get_inputs(activations[i - 1])
                 * self.activation().derivative(activations[i])
                 * 2
                 * (activations[i] - y)
             )
-            self.hidden_layers[i - 1].update_weights(delta, activations[i - 1])
+            delta_biases = (
+                self.activation().derivative(activations[i]) * 2 * (activations[i] - y)
+            )
+            self.hidden_layers[i - 1].update_parameters(delta_weights, delta_biases)
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """
@@ -284,8 +315,8 @@ class NeuralNetwork:
         predictions = np.zeros((x.shape[0], len(self.output_layer.neurons)))
         for i, x_i in enumerate(x):
             prediction = self._predict_single(x_i)
-            predictions.append(prediction)
-        return np.array(predictions)
+            predictions[i] = prediction
+        return predictions
 
     def _predict_single(self, x: np.ndarray) -> np.ndarray:
         """

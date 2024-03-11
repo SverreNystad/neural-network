@@ -43,3 +43,16 @@ def neuron_visualizer(
     ax.imshow(weight_matrix, cmap="gray", interpolation="nearest")
     ax.axis("off")  # Hide the axes
     plt.show()
+
+
+def plot_loss_over_time(losses: np.ndarray) -> None:
+    """
+    Plots the loss over time
+    Args:
+        losses (np.ndarray): Array of loss values
+    """
+    plt.plot(losses)
+    plt.xlabel("Iteration")
+    plt.ylabel("Loss")
+    plt.title("Loss Over Time")
+    plt.show()

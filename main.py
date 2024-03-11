@@ -1,19 +1,31 @@
 from src.data_loader import get_data
-from src.neural_network import NeuralNetwork, Layer, Sigmoid, Neuron
+from src.losses import MeanSquaredError
+from src.neural_network import NeuralNetwork
 import numpy as np
 
-from src.visualizer import neuron_visualizer
+from src.visualizer import plot_loss_over_time, neuron_visualizer
 
 if __name__ == "__main__":
-    # np.random.seed(0)
-    # X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
+    np.random.seed(0)
+    X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
+    loss_function = MeanSquaredError()
 
-    # # Train the model
-    # NeuralNetwork = NeuralNetwork(2, [Layer(1, Sigmoid)], 1)
-    # NeuralNetwork.train(X_train, y_train)
+    # Train the model
+    neuralNetwork = NeuralNetwork(2, [2], 1)
+    neuralNetwork.train(X_train, y_train)
 
-    # # Make predictions
-    # predictions = NeuralNetwork.predict(X_test)
+    # Visualize the the loss over time
+    plot_loss_over_time(neuralNetwork.logger)
 
-    Neuron = Neuron(Sigmoid)
-    neuron_visualizer(Neuron)
+    # Visualize the neurons classifying neuron
+    neuron_visualizer(neuralNetwork.output_layer.neurons[0])
+
+    # Make predictions on the training set
+    predictions = neuralNetwork.predict(X_train)
+    loss = loss_function(y_train, predictions)
+    print(f"MSE Loss on Training: {loss}")
+
+    # Make predictions on the test set
+    predictions = neuralNetwork.predict(X_test)
+    loss = loss_function(y_test, predictions)
+    print(f"MSE Loss on test: {loss}")

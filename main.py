@@ -3,7 +3,7 @@ from src.losses import MeanSquaredError
 from src.neural_network import NeuralNetwork
 import numpy as np
 
-from src.visualizer import plot_loss_over_time, neuron_visualizer
+from src.visualizer import plot_loss_over_time, visualize_neuron_weights
 
 if __name__ == "__main__":
     np.random.seed(0)
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     plot_loss_over_time(neuralNetwork.logger)
 
     # Visualize the neurons classifying neuron
-    neuron_visualizer(neuralNetwork.output_layer.neurons[0])
+    visualize_neuron_weights(neuralNetwork.output_layer.neurons[0])
 
     # Make predictions on the training set
     predictions = neuralNetwork.predict(X_train)

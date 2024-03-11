@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 
-def neuron_visualizer(
+def visualize_neuron_weights(
     neuron: Neuron,
 ) -> None:
     """

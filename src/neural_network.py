@@ -131,6 +131,49 @@ class Layer:
 
 
 class NeuralNetwork:
+    """
+    A simple implementation of a feedforward neural network with customizable
+    number of layers, activation functions, and loss function. This neural network
+    supports basic training through backpropagation and can make predictions on new data.
+
+    The neural network initializes with specified sizes for the input, hidden, and
+    output layers, an activation function for the neurons, and a loss function
+    for training evaluation. The architecture is flexible, allowing for a variable
+    number of hidden layers and neurons within those layers.
+
+    Parameters:
+    - input_layer_size (int): The number of features in the input data.
+    - hidden_layers (list[int]): A list containing the number of neurons in each hidden layer.
+    - output_layer_size (int): The number of neurons in the output layer.
+    - activation (Activation, optional): The activation function to be used by the neurons. Defaults to Sigmoid.
+    - cost_function (Loss, optional): The loss function to be used for evaluating the training. Defaults to MeanSquaredError.
+
+    Methods:
+    - train(x, y): Trains the neural network on the given input-output pairs using backpropagation.
+    - predict(x): Predicts the output for the given input using the trained neural network.
+
+    Example usage:
+    ```python
+    >>> X_train, y_train, X_test, y_test = get_data(n_train=280, n_test=120)
+    >>> loss_function = MeanSquaredError()
+
+    # Train a model with 2 input features, 2 hidden neurons, and 1 output neuron
+    >>> neuralNetwork = NeuralNetwork(2, [2], 1)
+    >>> neuralNetwork.train(X_train, y_train)
+
+    # Make predictions on the training set
+    >>> predictions = neuralNetwork.predict(X_train)
+    >>> loss = loss_function(y_train, predictions)
+    >>> print(f"MSE Loss on Training: {loss}")
+    MSE Loss on Training: 0.06979377674222319
+
+    >>> # Make predictions on the test set
+    >>> predictions = neuralNetwork.predict(X_test)
+    >>> loss = loss_function(y_test, predictions)
+    >>> print(f"MSE Loss on test: {loss}")
+    MSE Loss on test: 0.07305711106937894
+    ```
+    """
 
     def __init__(
         self,
@@ -241,8 +284,8 @@ class NeuralNetwork:
         predictions = np.zeros((x.shape[0], len(self.output_layer.neurons)))
         for i, x_i in enumerate(x):
             prediction = self._predict_single(x_i)
-            predictions[i] = prediction
-        return predictions
+            predictions.append(prediction)
+        return np.array(predictions)
 
     def _predict_single(self, x: np.ndarray) -> np.ndarray:
         """

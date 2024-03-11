@@ -1,0 +1,39 @@
+
+
+
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+
+Given:
+\begin{itemize}
+    \item Cost function: \(c_0 = (a^{(L)} - y)^2\)
+    \item Weighted input: \(z^{(L)} = w^{(L)} a^{(L-1)} + b^{(L)}\)
+    \item Activation: \(a^{(L)} = \sigma(z^{(L)})\)
+\end{itemize}
+
+Using the chain rule to find \(\frac{\partial c_0}{\partial w^{(L)}}\):
+
+\[
+\frac{\partial c_0}{\partial w^{(L)}} = \frac{\partial c_0}{\partial a^{(L)}} \cdot \frac{\partial a^{(L)}}{\partial z^{(L)}} \cdot \frac{\partial z^{(L)}}{\partial w^{(L)}}
+\]
+
+Where:
+\begin{align*}
+    \frac{\partial c_0}{\partial a^{(L)}} &= 2(a^{(L)} - y) \\
+    \frac{\partial a^{(L)}}{\partial z^{(L)}} &= \sigma(z^{(L)}) \cdot (1 - \sigma(z^{(L)})) \\
+    \frac{\partial z^{(L)}}{\partial w^{(L)}} &= a^{(L-1)}
+\end{align*}
+
+
+So the weights are:
+\begin{align*}
+    \frac{\partial c_0}{\partial w^{(L)}} &= a^{(L-1)} \cdot \partiel \sigma(z^{(L)}) \cdot 2(a^{(L)} - y)
+\end{align*}
+
+The bias is:
+\begin{align*}
+    \frac{\partial c_0}{\partial b^{(L)}} &= \partiel \sigma(z^{(L)}) \cdot 2(a^{(L)} - y)
+\end{align*}
+
+\end{document}

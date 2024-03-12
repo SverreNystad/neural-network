@@ -263,38 +263,32 @@ class NeuralNetwork:
 
         # Backwards pass
         # Compute the gradient of the loss function with respect to the output layer
+        z_output = self.output_layer.get_inputs(activations[-2])
         delta_weights = (
             activations[-2]
-            * self.activation().derivative(activations[-1])
+            * self.activation().derivative(z_output)
             * 2
             * (activations[-1] - y)
         )
 
         delta_biases = (
-            self.activation().derivative(activations[-1]) * 2 * (activations[-1] - y)
+            self.activation().derivative(z_output) * 2 * (activations[-1] - y)
         )
 
-        # Compute the gradient of the loss function with respect to the output layer
-        delta_previous_activation = np.zeros_like(len(self.output_layer.neurons))
-        for i, neuron in enumerate(self.output_layer.neurons):
-            delta_previous_activation = (
-                neuron.weights
-                * self.activation().derivative(activations[-1])
-                * 2
-                * (activations[-1] - y)
-            )
         # Update the weights and biases of the output layer
         self.output_layer.update_parameters(delta_weights, delta_biases)
 
-        for i in range(len(self.hidden_layers), 0, -1):
+        # Compute the gradient of the loss function with respect to the hidden layers
+        for i in range(0, -len(self.hidden_layers), -1):
+            z_hidden = self.hidden_layers[i].get_inputs(activations[i - 2])
             delta_weights = (
-                self.hidden_layers[i - 1].get_inputs(activations[i - 1])
-                * self.activation().derivative(activations[i])
+                self.hidden_layers[i - 1].get_inputs(activations[i - 2])
+                * self.activation().derivative(z_hidden)
                 * 2
                 * (activations[i] - y)
             )
             delta_biases = (
-                self.activation().derivative(activations[i]) * 2 * (activations[i] - y)
+                self.activation().derivative(z_hidden) * 2 * (activations[i] - y)
             )
             self.hidden_layers[i - 1].update_parameters(delta_weights, delta_biases)
 

@@ -4,7 +4,7 @@ cycler==0.12.1
 fonttools==4.49.0
 iniconfig==2.0.0
 kiwisolver==1.4.5
-matplotlib==3.8.3
+matplotlib==3.8.4
 numpy==1.26.4
 packaging==24.0
 pillow==10.2.0

@@ -87,11 +87,17 @@ class Neuron:
 
 class Layer:
     def __init__(
-        self, inputs: int, neurons: int, activation: Activation, cost_function: Loss
+        self,
+        inputs: int,
+        neurons: int,
+        activation: Activation,
+        cost_function: Loss,
+        learning_rate: float,
     ) -> None:
         self._inputs = inputs
         self.neurons = [
-            Neuron(inputs, activation, cost_function) for _ in range(neurons)
+            Neuron(inputs, activation, cost_function, learning_rate)
+            for _ in range(neurons)
         ]
 
     def forward(self, x: np.ndarray) -> np.ndarray:
@@ -199,12 +205,18 @@ class NeuralNetwork:
         self.epochs = epochs
 
         self.input_layer_size = input_layer_size
-        self._init_layers(input_layer_size, hidden_layers, output_layer_size)
+        self._init_layers(
+            input_layer_size, hidden_layers, output_layer_size, learning_rate
+        )
 
         self.logger = []
 
     def _init_layers(
-        self, input_layer_size: int, hidden_layers: list[int], output_layer_size: int
+        self,
+        input_layer_size: int,
+        hidden_layers: list[int],
+        output_layer_size: int,
+        learning_rate: float,
     ) -> None:
         """
         Initializes the layers of the neural network
@@ -218,11 +230,16 @@ class NeuralNetwork:
         inputs = input_layer_size
         for layer in hidden_layers:
             self.hidden_layers.append(
-                Layer(inputs, layer, self.activation, self.cost_function)
+                Layer(inputs, layer, self.activation, self.cost_function, learning_rate)
             )
             inputs = layer
+
         self.output_layer = Layer(
-            hidden_layers[-1], output_layer_size, self.activation, self.cost_function
+            hidden_layers[-1],
+            output_layer_size,
+            self.activation,
+            self.cost_function,
+            learning_rate,
         )
 
     def train(self, x: np.ndarray, y: np.ndarray) -> None:

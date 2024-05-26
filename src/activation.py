@@ -47,7 +47,7 @@ class ReLU(Activation):
     """
 
     def __call__(self, x: Union[float, np.ndarray]) -> np.ndarray:
-        return np, max(0, x)
+        return np.maximum(0, x)
 
     def derivative(self, x: Union[float, np.ndarray]) -> np.ndarray:
         return np.where(x > 0, 1, 0)

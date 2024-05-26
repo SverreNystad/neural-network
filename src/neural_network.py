@@ -153,6 +153,8 @@ class NeuralNetwork:
     - output_layer_size (int): The number of neurons in the output layer.
     - activation (Activation, optional): The activation function to be used by the neurons. Defaults to Sigmoid.
     - cost_function (Loss, optional): The loss function to be used for evaluating the training. Defaults to MeanSquaredError.
+    - learning_rate (float, optional): The learning rate for the optimization algorithm. Defaults to 0.01.
+    - epochs (int, optional): The number of epochs to train the neural network. Defaults to 100.
 
     Methods:
     - train(x, y): Trains the neural network on the given input-output pairs using backpropagation.
@@ -188,11 +190,13 @@ class NeuralNetwork:
         output_layer_size: int,
         activation: Activation = Sigmoid,
         cost_function: Loss = MeanSquaredError,
+        learning_rate: float = 0.01,
+        epochs: int = 100,
     ) -> None:
         self.activation: Activation = activation
         self.cost_function: Loss = cost_function
-        self.learning_rate = 0.01
-        self.epochs = 100
+        self.learning_rate = learning_rate
+        self.epochs = epochs
 
         self.input_layer_size = input_layer_size
         self._init_layers(input_layer_size, hidden_layers, output_layer_size)

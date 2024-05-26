@@ -13,6 +13,7 @@ if __name__ == "__main__":
     loss_function: Loss = MeanSquaredError
 
     # Train the model
+    print("[INFO] Creating the model")
     neuralNetwork = NeuralNetwork(
         2, [2], 1, activation, loss_function, learning_rate=0.01, epochs=100
     )

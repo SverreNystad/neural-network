@@ -16,6 +16,7 @@ if __name__ == "__main__":
     neuralNetwork = NeuralNetwork(
         2, [2], 1, activation, loss_function, learning_rate=0.01, epochs=100
     )
+    print(neuralNetwork.summary())
     print(f"[INFO] Training the model for {neuralNetwork.epochs} epochs")
     neuralNetwork.train(X_train, y_train)
 

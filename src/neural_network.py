@@ -353,3 +353,36 @@ class NeuralNetwork:
         activation = self.output_layer.forward(activation)
 
         return activation
+
+    def summary(self):
+        """
+        Prints a summary of the neural network architecture, including the layer types,
+        number of neurons in each layer, activation functions, and total trainable parameters.
+        """
+
+        summary_str = "Neural Network Architecture Summary:\n"
+        summary_str += "===================================\n"
+        summary_str += f"Input Layer:\n  Size: {self.input_layer_size} neurons\n\n"
+
+        # Initialize input size with input layer size
+        inputs = self.input_layer_size
+        total_params = 0
+
+        # Calculate parameters for each hidden layer
+        for i, layer in enumerate(self.hidden_layers):
+            # Weights + biases
+            layer_params = (inputs * len(layer.neurons)) + len(layer.neurons)
+            total_params += layer_params
+            summary_str += f"Hidden Layer {i + 1}:\n  Size: {len(layer.neurons)} neurons\n  Activation: {type(layer.neurons[0].activation).__name__}\n  Params: {layer_params}\n"
+            inputs = len(layer.neurons)
+
+        # Calculate parameters for output layer
+        output_layer_params = (inputs * len(self.output_layer.neurons)) + len(
+            self.output_layer.neurons
+        )
+        total_params += output_layer_params
+        summary_str += f"Output Layer:\n  Size: {len(self.output_layer.neurons)} neurons\n  Activation: {type(self.output_layer.neurons[0].activation).__name__}\n  Params: {output_layer_params}\n"
+
+        summary_str += f"Total Trainable Parameters: {total_params}\n"
+
+        return summary_str
